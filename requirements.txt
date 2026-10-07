@@ -5,3 +5,4 @@ numpy==2.5.3
 plotly==7.1.0
 category_encoders==2.11.1
 joblib==1.6.0
+matplotlib
