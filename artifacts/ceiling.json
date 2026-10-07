@@ -1,0 +1,52 @@
+{
+  "models": [
+    {
+      "label": "Age alone",
+      "accuracy": 0.708824123308878,
+      "roc_auc": 0.7500127124734416,
+      "n_features": 1,
+      "note": "A single feature, logistic regression."
+    },
+    {
+      "label": "Top 3 features",
+      "accuracy": 0.712391465302551,
+      "roc_auc": 0.7887314132149423,
+      "n_features": 3,
+      "note": "Age, APOE-\u03b54 and family history only."
+    },
+    {
+      "label": "Gradient boosting",
+      "accuracy": 0.7270646833142627,
+      "roc_auc": 0.80609986508152,
+      "n_features": 24,
+      "note": "All 24 features, the algorithm that usually wins on tabular data."
+    }
+  ],
+  "learning_curve": [
+    {
+      "n": 3961,
+      "accuracy": 0.7142328549712218
+    },
+    {
+      "n": 9904,
+      "accuracy": 0.7196513728182766
+    },
+    {
+      "n": 19808,
+      "accuracy": 0.7206105251503501
+    },
+    {
+      "n": 29712,
+      "accuracy": 0.7230168855026461
+    },
+    {
+      "n": 39617,
+      "accuracy": 0.7250698779224741
+    }
+  ],
+  "best_tuned": {
+    "label": "Decision Tree",
+    "accuracy": 0.7296897085548899
+  },
+  "naive_baseline": 0.5865446101033218
+}

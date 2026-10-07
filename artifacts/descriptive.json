@@ -1,0 +1,236 @@
+{
+  "n_rows": 74283,
+  "n_features": 24,
+  "target_balance": {
+    "No": 0.5865406620626523,
+    "Yes": 0.41345933793734774
+  },
+  "missing_total": 0,
+  "numeric_by_class": {
+    "Age": {
+      "No": {
+        "count": 43570.0,
+        "mean": 67.388,
+        "std": 12.191,
+        "min": 50.0,
+        "25%": 57.0,
+        "50%": 65.0,
+        "75%": 75.0,
+        "max": 94.0
+      },
+      "Yes": {
+        "count": 30713.0,
+        "mean": 78.457,
+        "std": 11.173,
+        "min": 50.0,
+        "25%": 71.0,
+        "50%": 80.0,
+        "75%": 87.0,
+        "max": 94.0
+      }
+    },
+    "Education Level": {
+      "No": {
+        "count": 43570.0,
+        "mean": 9.469,
+        "std": 5.756,
+        "min": 0.0,
+        "25%": 4.0,
+        "50%": 9.0,
+        "75%": 14.0,
+        "max": 19.0
+      },
+      "Yes": {
+        "count": 30713.0,
+        "mean": 9.513,
+        "std": 5.758,
+        "min": 0.0,
+        "25%": 5.0,
+        "50%": 10.0,
+        "75%": 15.0,
+        "max": 19.0
+      }
+    },
+    "BMI": {
+      "No": {
+        "count": 43570.0,
+        "mean": 26.787,
+        "std": 4.766,
+        "min": 18.5,
+        "25%": 22.7,
+        "50%": 26.8,
+        "75%": 30.9,
+        "max": 35.0
+      },
+      "Yes": {
+        "count": 30713.0,
+        "mean": 26.771,
+        "std": 4.763,
+        "min": 18.5,
+        "25%": 22.7,
+        "50%": 26.8,
+        "75%": 30.9,
+        "max": 35.0
+      }
+    },
+    "Cognitive Test Score": {
+      "No": {
+        "count": 43570.0,
+        "mean": 64.674,
+        "std": 20.139,
+        "min": 30.0,
+        "25%": 47.0,
+        "50%": 65.0,
+        "75%": 82.0,
+        "max": 99.0
+      },
+      "Yes": {
+        "count": 30713.0,
+        "mean": 64.627,
+        "std": 20.174,
+        "min": 30.0,
+        "25%": 47.0,
+        "50%": 65.0,
+        "75%": 82.0,
+        "max": 99.0
+      }
+    }
+  },
+  "positive_rate_by_category": {
+    "Gender": {
+      "Female": 0.4128,
+      "Male": 0.4141
+    },
+    "Smoking Status": {
+      "Current": 0.4117,
+      "Former": 0.4126,
+      "Never": 0.4161
+    },
+    "Alcohol Consumption": {
+      "Never": 0.4105,
+      "Occasionally": 0.4173,
+      "Regularly": 0.4126
+    },
+    "Diabetes": {
+      "No": 0.4141,
+      "Yes": 0.4108
+    },
+    "Hypertension": {
+      "No": 0.4138,
+      "Yes": 0.4126
+    },
+    "Cholesterol Level": {
+      "High": 0.4119,
+      "Normal": 0.4141
+    },
+    "Family History of Alzheimer's": {
+      "No": 0.368,
+      "Yes": 0.5195
+    },
+    "Sleep Quality": {
+      "Average": 0.4134,
+      "Good": 0.4128,
+      "Poor": 0.4142
+    },
+    "Dietary Habits": {
+      "Average": 0.4126,
+      "Healthy": 0.4113,
+      "Unhealthy": 0.4165
+    },
+    "Employment Status": {
+      "Employed": 0.4097,
+      "Retired": 0.4168,
+      "Unemployed": 0.4139
+    },
+    "Marital Status": {
+      "Married": 0.4145,
+      "Single": 0.4127,
+      "Widowed": 0.4132
+    },
+    "Genetic Risk Factor (APOE-\u03b54 allele)": {
+      "No": 0.3658,
+      "Yes": 0.6061
+    },
+    "Urban vs Rural Living": {
+      "Rural": 0.4155,
+      "Urban": 0.4114
+    },
+    "Physical Activity Level": {
+      "High": 0.4156,
+      "Low": 0.4128,
+      "Medium": 0.412
+    },
+    "Depression Level": {
+      "High": 0.4147,
+      "Low": 0.4141,
+      "Medium": 0.4115
+    },
+    "Air Pollution Exposure": {
+      "High": 0.4118,
+      "Low": 0.4167,
+      "Medium": 0.4119
+    },
+    "Social Engagement Level": {
+      "High": 0.4113,
+      "Low": 0.4149,
+      "Medium": 0.4142
+    },
+    "Income Level": {
+      "High": 0.4108,
+      "Low": 0.4113,
+      "Medium": 0.4183
+    },
+    "Stress Levels": {
+      "High": 0.4171,
+      "Low": 0.4118,
+      "Medium": 0.4115
+    }
+  },
+  "age_bins": [
+    {
+      "_b": "(50, 55]",
+      "mean": 0.1551,
+      "count": 8208
+    },
+    {
+      "_b": "(55, 60]",
+      "mean": 0.1572,
+      "count": 8240
+    },
+    {
+      "_b": "(60, 65]",
+      "mean": 0.1562,
+      "count": 8395
+    },
+    {
+      "_b": "(65, 70]",
+      "mean": 0.3599,
+      "count": 8185
+    },
+    {
+      "_b": "(70, 75]",
+      "mean": 0.362,
+      "count": 8304
+    },
+    {
+      "_b": "(75, 80]",
+      "mean": 0.6622,
+      "count": 8213
+    },
+    {
+      "_b": "(80, 85]",
+      "mean": 0.66,
+      "count": 8208
+    },
+    {
+      "_b": "(85, 90]",
+      "mean": 0.6586,
+      "count": 8286
+    },
+    {
+      "_b": "(90, 95]",
+      "mean": 0.6561,
+      "count": 6543
+    }
+  ]
+}

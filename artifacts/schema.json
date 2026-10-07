@@ -1,0 +1,166 @@
+{
+  "numeric": {
+    "Age": {
+      "min": 50.0,
+      "max": 94.0,
+      "median": 72.0
+    },
+    "Education Level": {
+      "min": 0.0,
+      "max": 19.0,
+      "median": 9.0
+    },
+    "BMI": {
+      "min": 18.5,
+      "max": 35.0,
+      "median": 26.8
+    },
+    "Cognitive Test Score": {
+      "min": 30.0,
+      "max": 99.0,
+      "median": 65.0
+    }
+  },
+  "ordinal": {
+    "Physical Activity Level": [
+      "Low",
+      "Medium",
+      "High"
+    ],
+    "Depression Level": [
+      "Low",
+      "Medium",
+      "High"
+    ],
+    "Air Pollution Exposure": [
+      "Low",
+      "Medium",
+      "High"
+    ],
+    "Social Engagement Level": [
+      "Low",
+      "Medium",
+      "High"
+    ],
+    "Income Level": [
+      "Low",
+      "Medium",
+      "High"
+    ],
+    "Stress Levels": [
+      "Low",
+      "Medium",
+      "High"
+    ]
+  },
+  "nominal": {
+    "Gender": [
+      "Female",
+      "Male"
+    ],
+    "Smoking Status": [
+      "Current",
+      "Former",
+      "Never"
+    ],
+    "Alcohol Consumption": [
+      "Never",
+      "Occasionally",
+      "Regularly"
+    ],
+    "Diabetes": [
+      "No",
+      "Yes"
+    ],
+    "Hypertension": [
+      "No",
+      "Yes"
+    ],
+    "Cholesterol Level": [
+      "High",
+      "Normal"
+    ],
+    "Family History of Alzheimer's": [
+      "No",
+      "Yes"
+    ],
+    "Sleep Quality": [
+      "Average",
+      "Good",
+      "Poor"
+    ],
+    "Dietary Habits": [
+      "Average",
+      "Healthy",
+      "Unhealthy"
+    ],
+    "Employment Status": [
+      "Employed",
+      "Retired",
+      "Unemployed"
+    ],
+    "Marital Status": [
+      "Married",
+      "Single",
+      "Widowed"
+    ],
+    "Genetic Risk Factor (APOE-\u03b54 allele)": [
+      "No",
+      "Yes"
+    ],
+    "Urban vs Rural Living": [
+      "Rural",
+      "Urban"
+    ]
+  },
+  "high_card": {
+    "Country": [
+      "Argentina",
+      "Australia",
+      "Brazil",
+      "Canada",
+      "China",
+      "France",
+      "Germany",
+      "India",
+      "Italy",
+      "Japan",
+      "Mexico",
+      "Norway",
+      "Russia",
+      "Saudi Arabia",
+      "South Africa",
+      "South Korea",
+      "Spain",
+      "Sweden",
+      "UK",
+      "USA"
+    ]
+  },
+  "column_order": [
+    "Country",
+    "Age",
+    "Gender",
+    "Education Level",
+    "BMI",
+    "Physical Activity Level",
+    "Smoking Status",
+    "Alcohol Consumption",
+    "Diabetes",
+    "Hypertension",
+    "Cholesterol Level",
+    "Family History of Alzheimer's",
+    "Cognitive Test Score",
+    "Depression Level",
+    "Sleep Quality",
+    "Dietary Habits",
+    "Air Pollution Exposure",
+    "Employment Status",
+    "Marital Status",
+    "Genetic Risk Factor (APOE-\u03b54 allele)",
+    "Social Engagement Level",
+    "Income Level",
+    "Stress Levels",
+    "Urban vs Rural Living"
+  ]
+}

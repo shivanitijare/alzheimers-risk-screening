@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.venv/
+.DS_Store
+
+# Local-only notes, not published with the project
+DEPLOY.md
+NOTES.md
