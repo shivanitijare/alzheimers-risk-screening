@@ -22,29 +22,38 @@ import streamlit as st
 ROOT = Path(__file__).parent
 ART = ROOT / "artifacts"
 
-# Categorical palette, slots 1-4, validated for the light chart surface.
-# Light mode carries a contrast WARN on aqua/yellow, so every chart using
-# those slots also ships direct labels or an adjacent table.
-C = {
-    "blue": "#2a78d6",
-    "orange": "#eb6834",
-    "aqua": "#1baf7a",
-    "yellow": "#eda100",
-}
-SERIES = [C["blue"], C["orange"], C["aqua"], C["yellow"]]
-SEQ = ["#cde2fb", "#9ec5f4", "#6da7ec", "#3987e5", "#256abf", "#184f95"]
-INK = "#0b0b0b"
-INK_2 = "#52514e"
-GRID = "#e8e7e3"
-SURFACE = "#fcfcfb"
-POS = "#e34948"  # positive / at-risk
-NEG = "#2a78d6"  # negative / not at risk
+# Executive palette: one navy accent, muted slate for everything secondary,
+# and a muted red / teal pair reserved for risk meaning only.
+BG = "#F6F7F9"
+CARD = "#FFFFFF"
+INK = "#0F1B2D"
+INK_2 = "#5B6675"
+INK_3 = "#8A94A3"
+GRID = "#E9ECF1"
+LINE = "#E3E7ED"
+ACCENT = "#1F4E8C"        # navy: the recommended model, primary series
+ACCENT_SOFT = "#DCE6F2"
+SLATE = "#AEB7C4"         # every non-highlighted series
+RISK = "#B42318"          # at risk / missed case
+SAFE = "#0E7C66"          # not at risk / correctly cleared
+SURFACE = CARD
+POS, NEG = RISK, SAFE
+SEQ = ["#E8EEF6", "#C9D7EA", "#9DB6D8", "#5F86BC", "#1F4E8C", "#163A6A"]
+C = {"blue": ACCENT}
 
+RECOMMENDED = "Random Forest"
 MODEL_COLOR = {
-    "Logistic Regression": C["blue"],
-    "Decision Tree": C["orange"],
-    "Random Forest": C["aqua"],
-    "SVM": C["yellow"],
+    "Logistic Regression": SLATE,
+    "Decision Tree": SLATE,
+    "Random Forest": ACCENT,
+    "SVM": SLATE,
+}
+# Distinct but quiet line colours, only for the ROC chart in the collapsed section.
+ROC_COLOR = {
+    "Logistic Regression": "#8A94A3",
+    "Decision Tree": "#C08A3E",
+    "Random Forest": ACCENT,
+    "SVM": "#5BA39A",
 }
 
 st.set_page_config(
@@ -106,8 +115,8 @@ def base_layout(fig, height=340, showlegend=False):
         showlegend=showlegend,
         paper_bgcolor=SURFACE,
         plot_bgcolor=SURFACE,
-        font=dict(family="system-ui, -apple-system, sans-serif", size=13, color=INK_2),
-        margin=dict(l=8, r=8, t=28, b=8),
+        font=dict(family="Inter, system-ui, -apple-system, sans-serif", size=13, color=INK_2),
+        margin=dict(l=8, r=16, t=24, b=8),
         hoverlabel=dict(bgcolor="#ffffff", font_size=13, bordercolor=GRID),
         legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0, title=None),
     )
@@ -135,6 +144,79 @@ def group_country(s):
     out = s.drop(labels=bits)
     out["Country (all 5 encoded bits)"] = float(s[bits].sum())
     return out.sort_values(ascending=False)
+
+
+# ----------------------------------------------------------------------------
+# Presentation helpers
+# ----------------------------------------------------------------------------
+st.markdown(
+    f"""
+    <style>
+      .block-container {{ padding-top: 2.2rem; max-width: 1280px; }}
+      h1, h2, h3, h4 {{ letter-spacing: -0.01em; color: {INK}; }}
+      [data-testid="stVerticalBlockBorderWrapper"] {{ background: {CARD}; }}
+      .stTabs [data-baseweb="tab-list"] {{ gap: 6px; border-bottom: 1px solid {LINE}; }}
+      .stTabs [data-baseweb="tab"] {{ padding: 10px 14px; font-weight: 500; color: {INK_2}; }}
+      .stTabs [aria-selected="true"] {{ color: {ACCENT}; }}
+      .app-eyebrow {{ font-size: 12px; font-weight: 600; letter-spacing: .08em;
+                      text-transform: uppercase; color: {INK_3}; margin-bottom: 2px; }}
+      .app-title {{ font-size: 30px; font-weight: 700; color: {INK}; margin: 0; }}
+      .app-sub {{ font-size: 15px; color: {INK_2}; margin: 4px 0 6px 0; }}
+      .app-meta {{ font-size: 12.5px; color: {INK_3}; }}
+      .kpi {{ background: {CARD}; border: 1px solid {LINE}; border-radius: 10px;
+              padding: 14px 16px 12px 16px; height: 100%; }}
+      .kpi-label {{ font-size: 12px; font-weight: 600; letter-spacing: .04em;
+                    text-transform: uppercase; color: {INK_3}; }}
+      .kpi-value {{ font-size: 30px; font-weight: 700; color: {INK}; line-height: 1.15;
+                    margin-top: 4px; font-variant-numeric: tabular-nums; }}
+      .kpi-sub {{ font-size: 13px; color: {INK_2}; margin-top: 2px; }}
+      .section-title {{ font-size: 17px; font-weight: 600; color: {INK}; margin: 2px 0 2px 0; }}
+      .section-sub {{ font-size: 13.5px; color: {INK_2}; margin-bottom: 4px; }}
+      .takeaway {{ background: {CARD}; border: 1px solid {LINE}; border-left: 4px solid {ACCENT};
+                   border-radius: 8px; padding: 12px 16px; color: {INK}; font-size: 14.5px; }}
+      .takeaway b {{ color: {ACCENT}; }}
+      .analyst {{ display: inline-block; font-size: 11.5px; font-weight: 600;
+                  letter-spacing: .08em; text-transform: uppercase; color: {ACCENT};
+                  background: {ACCENT_SOFT}; border-radius: 999px; padding: 3px 10px;
+                  margin-bottom: 6px; }}
+      .cm-grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }}
+      .cm-cell {{ border-radius: 10px; padding: 14px; border: 1px solid {LINE}; }}
+      .cm-cell .n {{ font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; }}
+      .cm-cell .t {{ font-size: 13px; font-weight: 600; margin-top: 2px; }}
+      .cm-cell .d {{ font-size: 12px; color: {INK_2}; margin-top: 2px; }}
+      .cm-axis {{ font-size: 11.5px; color: {INK_3}; letter-spacing: .04em;
+                  text-transform: uppercase; margin: 2px 0 6px 0; }}
+      section[data-testid="stSidebar"] {{ border-right: 1px solid {LINE}; }}
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+
+def kpi(label, value, sub="", color=None):
+    """One KPI card. Colour is reserved for values that carry risk meaning."""
+    style = f' style="color:{color}"' if color else ""
+    st.markdown(
+        f'<div class="kpi"><div class="kpi-label">{label}</div>'
+        f'<div class="kpi-value"{style}>{value}</div>'
+        f'<div class="kpi-sub">{sub}</div></div>',
+        unsafe_allow_html=True,
+    )
+
+
+def section(title, sub=""):
+    st.markdown(f'<div class="section-title">{title}</div>', unsafe_allow_html=True)
+    if sub:
+        st.markdown(f'<div class="section-sub">{sub}</div>', unsafe_allow_html=True)
+
+
+def takeaway(text):
+    st.markdown(f'<div class="takeaway">{text}</div>', unsafe_allow_html=True)
+
+
+def analyst_tag():
+    st.markdown('<span class="analyst">Analyst view · behind the model</span>',
+                unsafe_allow_html=True)
 
 
 # ----------------------------------------------------------------------------
@@ -256,11 +338,17 @@ patient = pd.DataFrame([[record[c] for c in SCHEMA["column_order"]]], columns=SC
 # ----------------------------------------------------------------------------
 # Header
 # ----------------------------------------------------------------------------
-st.markdown("## Alzheimer's Risk Screening")
-st.caption(
-    f"{DESC['n_rows']:,} records · {DESC['n_features']} features · "
-    "four classifiers compared · held-out 20% test split"
+st.markdown(
+    f"""
+    <div class="app-eyebrow">Risk screening</div>
+    <div class="app-title">Alzheimer's Risk Screening</div>
+    <div class="app-sub">Score a patient's risk, then set the referral cut-off the business can live with.</div>
+    <div class="app-meta">{DESC['n_rows']:,} records &nbsp;·&nbsp; 4 models compared &nbsp;·&nbsp;
+    evaluated on a held-out 20% test set</div>
+    """,
+    unsafe_allow_html=True,
 )
+st.markdown("")
 
 tab_pred, tab_pres, tab_diag, tab_ceil = st.tabs(
     ["Score a patient", "Set the cut-off", "What drives it", "Where it tops out"]
@@ -268,48 +356,31 @@ tab_pred, tab_pres, tab_diag, tab_ceil = st.tabs(
 
 
 # ----------------------------------------------------------------------------
-# PREDICTIVE
+# SCORE A PATIENT
 # ----------------------------------------------------------------------------
 with tab_pred:
-    st.markdown("#### Risk score for this patient")
-
     scores = {name: float(m.predict_proba(patient)[0, 1]) for name, m in MODELS.items()}
-    mean_score = float(np.mean(list(scores.values())))
+    rec_score = scores[RECOMMENDED]
     n_flagged = sum(v >= 0.5 for v in scores.values())
+    spread = max(scores.values()) - min(scores.values())
+    agreement = "Strong" if spread < 0.10 else ("Moderate" if spread < 0.20 else "Weak")
 
-    left, right = st.columns([1, 1.6])
+    k1, k2, k3 = st.columns(3)
+    with k1:
+        kpi(
+            "Risk score",
+            f"{rec_score:.0%}",
+            ("Above" if rec_score >= 0.5 else "Below") + f" the 50% cut-off · {RECOMMENDED}",
+            color=RISK if rec_score >= 0.5 else SAFE,
+        )
+    with k2:
+        kpi("Models flagging", f"{n_flagged} of 4", "at the default 50% cut-off")
+    with k3:
+        kpi("Model agreement", agreement, f"{spread:.0%} gap between highest and lowest score")
 
-    with left:
-        # Hero number: a single headline figure reads better as type than as a
-        # gauge, which asks the viewer to judge an angle.
-        tone = POS if mean_score >= 0.5 else NEG
-        verdict = "Above the 0.50 cut-off" if mean_score >= 0.5 else "Below the 0.50 cut-off"
-        st.markdown(
-            f"""
-            <div style="padding:4px 0 2px 0">
-              <div style="font-size:13px;color:{INK_2};letter-spacing:.02em">
-                MEAN RISK SCORE
-              </div>
-              <div style="font-size:68px;line-height:1.05;font-weight:600;color:{tone}">
-                {mean_score:.1%}
-              </div>
-              <div style="font-size:14px;color:{INK_2};margin-top:2px">{verdict}</div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-        st.caption(
-            f"{n_flagged} of 4 models flag this patient at the default 0.50 cut-off. "
-            "Mean of the four model probabilities; the individual scores are beside it."
-        )
-        spread = max(scores.values()) - min(scores.values())
-        st.metric("Spread across models", f"{spread:.1%}")
-        st.caption(
-            "A wide spread means the models disagree, which is itself worth surfacing "
-            "to a reviewer."
-        )
-
-    with right:
+    st.markdown("")
+    with st.container(border=True):
+        section("Risk score by model", "Each model scores the same record. Navy is the recommended model.")
         order = sorted(scores, key=scores.get, reverse=True)
         fig = go.Figure()
         for name in order:
@@ -320,209 +391,241 @@ with tab_pred:
                     orientation="h",
                     marker=dict(color=MODEL_COLOR[name]),
                     width=0.56,
-                    text=[f"{scores[name]:.1%}"],
+                    text=[f"{scores[name]:.0%}"],
                     textposition="outside",
-                    textfont=dict(color=INK_2, size=13),
+                    textfont=dict(color=INK, size=13),
                     hovertemplate=f"{name}<br>%{{x:.1%}}<extra></extra>",
                 )
             )
-        fig.add_vline(x=0.5, line=dict(color=INK_2, width=2, dash="dot"))
-        fig.update_xaxes(range=[0, 1.14], tickformat=".0%", title="Predicted probability")
+        fig.add_vline(x=0.5, line=dict(color=INK_3, width=1.5, dash="dot"))
+        fig.add_annotation(x=0.5, y=1.08, yref="paper", text="50% cut-off", showarrow=False,
+                           font=dict(size=11, color=INK_3))
+        fig.update_xaxes(range=[0, 1.12], tickformat=".0%", showgrid=False)
         fig.update_yaxes(categoryorder="array", categoryarray=order[::-1])
-        fig.update_traces(marker_line_width=0)
-        st.plotly_chart(base_layout(fig, height=260), width='stretch')
-        st.caption("Dotted line is the default 0.50 decision threshold.")
+        st.plotly_chart(base_layout(fig, height=230), width="stretch")
 
-    st.divider()
-    st.markdown("#### Held-out test performance")
-
-    perf = pd.DataFrame(
-        [
-            {
-                "Model": r["model"],
-                "Accuracy": r["accuracy"],
-                "Recall": r["recall"],
-                "Precision": r["precision"],
-                "F1": r["f1"],
-                "AUC": r["roc_auc"],
-                "Missed cases": r["confusion"]["fn"],
-                "Notebook acc.": r["notebook_accuracy"],
-            }
-            for r in RESULTS
-        ]
-    ).sort_values("Recall", ascending=False)
-
-    c1, c2 = st.columns([1.5, 1])
-    with c1:
-        st.dataframe(
-            perf.style.format(
-                {
-                    "Accuracy": "{:.4f}",
-                    "Recall": "{:.4f}",
-                    "Precision": "{:.4f}",
-                    "F1": "{:.4f}",
-                    "AUC": "{:.4f}",
-                    "Notebook acc.": "{:.4f}",
-                }
-            ).background_gradient(subset=["Recall"], cmap="Blues"),
-            hide_index=True,
-            width='stretch',
+    with st.container(border=True):
+        section(
+            "Cases caught (recall)",
+            "Share of true cases each model catches on the test set, at the default 50% cut-off.",
         )
-        st.caption(
-            "Sorted by recall, not accuracy, because recall is what a screening tool is "
-            "really judged on. Accuracy reproduces the original notebook within 0.004 "
-            "after moving every encoder inside the cross-validation pipeline, which "
-            "confirms the earlier scaling leakage was real but immaterial."
-        )
-    with c2:
+        rec = sorted(RESULTS, key=lambda r: r["recall"], reverse=True)
         fig = go.Figure()
-        for r in RESULTS:
+        for r in rec:
+            label = r["model"] + ("  · recommended" if r["model"] == RECOMMENDED else "")
             fig.add_trace(
-                go.Scatter(
-                    x=r["roc"]["fpr"],
-                    y=r["roc"]["tpr"],
-                    mode="lines",
-                    name=f"{r['model']} ({r['roc_auc']:.3f})",
-                    line=dict(color=MODEL_COLOR[r["model"]], width=2),
-                    hovertemplate=f"{r['model']}<br>FPR %{{x:.3f}} · TPR %{{y:.3f}}<extra></extra>",
+                go.Bar(
+                    x=[r["recall"]],
+                    y=[label],
+                    orientation="h",
+                    marker=dict(color=MODEL_COLOR[r["model"]]),
+                    width=0.56,
+                    text=[f"{r['recall']:.1%}"],
+                    textposition="outside",
+                    textfont=dict(color=INK, size=13),
+                    hovertemplate=f"{r['model']}<br>%{{x:.1%}} of true cases caught<extra></extra>",
                 )
             )
-        fig.add_trace(
-            go.Scatter(
-                x=[0, 1],
-                y=[0, 1],
-                mode="lines",
-                line=dict(color=GRID, width=2, dash="dash"),
-                hoverinfo="skip",
-                showlegend=False,
-            )
-        )
-        fig.update_xaxes(title="False positive rate", range=[0, 1])
-        fig.update_yaxes(title="True positive rate", range=[0, 1])
-        st.plotly_chart(base_layout(fig, height=340, showlegend=True), width='stretch')
+        labels = [r["model"] + ("  · recommended" if r["model"] == RECOMMENDED else "") for r in rec]
+        fig.update_xaxes(range=[0, 1.1], tickformat=".0%", showgrid=False)
+        fig.update_yaxes(categoryorder="array", categoryarray=labels[::-1])
+        st.plotly_chart(base_layout(fig, height=230), width="stretch")
         st.caption(
-            "The four curves sit almost on top of each other (AUC 0.789 to 0.803). "
-            "That overlap is the finding: the ceiling here is the feature set, not the "
-            "choice of algorithm."
+            "Random Forest is recommended: it ranks risk best (AUC 0.803) and gives smooth "
+            "scores, so the cut-off can be tuned precisely. The decision tree's lead here "
+            "comes from its few coarse score levels; at equal recall it refers more people."
         )
+
+    with st.expander("Full evaluation (accuracy, precision, F1, AUC, ROC curves)"):
+        perf = pd.DataFrame(
+            [
+                {
+                    "Model": r["model"],
+                    "Accuracy": r["accuracy"],
+                    "Recall": r["recall"],
+                    "Precision": r["precision"],
+                    "F1": r["f1"],
+                    "AUC": r["roc_auc"],
+                    "Missed cases": r["confusion"]["fn"],
+                    "Notebook acc.": r["notebook_accuracy"],
+                }
+                for r in RESULTS
+            ]
+        ).sort_values("Recall", ascending=False)
+
+        c1, c2 = st.columns([1.5, 1])
+        with c1:
+            st.dataframe(
+                perf.style.format(
+                    {
+                        "Accuracy": "{:.4f}",
+                        "Recall": "{:.4f}",
+                        "Precision": "{:.4f}",
+                        "F1": "{:.4f}",
+                        "AUC": "{:.4f}",
+                        "Notebook acc.": "{:.4f}",
+                    }
+                ),
+                hide_index=True,
+                width="stretch",
+            )
+            st.caption(
+                "Accuracy reproduces the original notebook within 0.004 after moving every "
+                "encoder inside the cross-validation pipeline, which confirms the earlier "
+                "scaling leakage was real but immaterial."
+            )
+        with c2:
+            fig = go.Figure()
+            for r in RESULTS:
+                fig.add_trace(
+                    go.Scatter(
+                        x=r["roc"]["fpr"],
+                        y=r["roc"]["tpr"],
+                        mode="lines",
+                        name=f"{r['model']} ({r['roc_auc']:.3f})",
+                        line=dict(color=ROC_COLOR[r["model"]], width=2.5 if r["model"] == RECOMMENDED else 1.8),
+                        hovertemplate=f"{r['model']}<br>FPR %{{x:.3f}} · TPR %{{y:.3f}}<extra></extra>",
+                    )
+                )
+            fig.add_trace(
+                go.Scatter(x=[0, 1], y=[0, 1], mode="lines",
+                           line=dict(color=GRID, width=2, dash="dash"),
+                           hoverinfo="skip", showlegend=False)
+            )
+            fig.update_xaxes(title="False positive rate", range=[0, 1])
+            fig.update_yaxes(title="True positive rate", range=[0, 1])
+            st.plotly_chart(base_layout(fig, height=340, showlegend=True), width="stretch")
+            st.caption(
+                "The four curves sit almost on top of each other (AUC 0.789 to 0.803): "
+                "the ceiling is the feature set, not the algorithm."
+            )
 
 
 # ----------------------------------------------------------------------------
-# PRESCRIPTIVE
+# SET THE CUT-OFF
 # ----------------------------------------------------------------------------
 with tab_pres:
-    st.markdown("#### Where should the screening threshold sit?")
-    st.caption(
-        "A screening tool is not scored on accuracy. Missing a true case costs far more "
-        "than a false alarm, so the operating point belongs to the clinic, not the default."
-    )
-
-    c1, c2, c3 = st.columns([1, 1, 1])
-    model_name = c1.selectbox("Model", list(MODELS), index=list(MODELS).index("Random Forest"))
-    fn_cost = c2.number_input("Cost of a missed case", 1, 500, 5, step=1)
-    fp_cost = c3.number_input("Cost of a false alarm", 1, 500, 1, step=1)
-
     y_true = EVAL["y_test"]
-    proba = EVAL["probas"][model_name]
 
-    grid = np.linspace(0.05, 0.95, 91)
-    tp = np.array([int(((proba >= t) & (y_true == 1)).sum()) for t in grid])
-    fp = np.array([int(((proba >= t) & (y_true == 0)).sum()) for t in grid])
-    fn = np.array([int(((proba < t) & (y_true == 1)).sum()) for t in grid])
-    tn = np.array([int(((proba < t) & (y_true == 0)).sum()) for t in grid])
-    cost = fn * fn_cost + fp * fp_cost
-    best_t = float(grid[int(np.argmin(cost))])
+    with st.container(border=True):
+        section(
+            "Business inputs",
+            "How much worse is a missed case than a false alarm? That ratio is a business "
+            "decision; the cut-off follows from it.",
+        )
+        c1, c2, c3 = st.columns(3)
+        model_name = c1.selectbox("Model", list(MODELS), index=list(MODELS).index(RECOMMENDED))
+        fn_cost = c2.number_input("Cost of a missed case", 1, 500, 5, step=1)
+        fp_cost = c3.number_input("Cost of a false alarm", 1, 500, 1, step=1)
 
-    threshold = st.slider(
-        "Decision threshold", 0.05, 0.95, round(best_t, 2), step=0.01,
-        help="Patients at or above this probability are referred for follow-up.",
-    )
+        proba = EVAL["probas"][model_name]
+        grid = np.linspace(0.05, 0.95, 91)
+        tp = np.array([int(((proba >= t) & (y_true == 1)).sum()) for t in grid])
+        fp = np.array([int(((proba >= t) & (y_true == 0)).sum()) for t in grid])
+        fn = np.array([int(((proba < t) & (y_true == 1)).sum()) for t in grid])
+        tn = np.array([int(((proba < t) & (y_true == 0)).sum()) for t in grid])
+        cost = fn * fn_cost + fp * fp_cost
+        best_t = float(grid[int(np.argmin(cost))])
+
+        threshold = st.slider(
+            "Referral cut-off (risk score at or above this is referred)",
+            0.05, 0.95, round(best_t, 2), step=0.01,
+            help="Starts at the lowest-cost cut-off for the ratio above. Drag to explore.",
+        )
 
     i = int(np.abs(grid - threshold).argmin())
-    recall_at = tp[i] / max(1, tp[i] + fn[i])
+    positives = tp[i] + fn[i]
+    recall_at = tp[i] / max(1, positives)
     precision_at = tp[i] / max(1, tp[i] + fp[i])
     referred = tp[i] + fp[i]
+    share = referred / len(y_true)
 
-    m1, m2, m3, m4 = st.columns(4)
-    m1.metric("Cases caught", f"{recall_at:.1%}", f"{tp[i]:,} of {tp[i] + fn[i]:,}")
-    m2.metric(
-        "Cases missed",
-        f"{fn[i]:,}",
-        f"{fn[i] - fn[int(np.abs(grid - 0.5).argmin())]:+,} vs 0.50",
-        delta_color="inverse",  # fewer missed cases is an improvement
-    )
-    m3.metric("Referred for follow-up", f"{referred:,}", f"{referred / len(y_true):.0%} of population")
-    m4.metric("Precision of referrals", f"{precision_at:.1%}")
+    st.markdown("")
+    k1, k2, k3, k4 = st.columns(4)
+    with k1:
+        kpi("Cases caught", f"{recall_at:.0%}", f"{tp[i]:,} of {positives:,} true cases · recall")
+    with k2:
+        kpi("Cases missed", f"{fn[i]:,}", "true cases sent home", color=RISK)
+    with k3:
+        kpi("People referred", f"{share:.0%}", f"{referred:,} of {len(y_true):,} screened")
+    with k4:
+        kpi("Referred who are at risk", f"{precision_at:.0%}",
+            f"{tp[i]:,} of {referred:,} · precision")
 
-    left, right = st.columns([1.5, 1])
+    st.markdown("")
+    left, right = st.columns([1.45, 1])
 
     with left:
-        fig = go.Figure()
-        fig.add_trace(
-            go.Scatter(
-                x=grid, y=fn, mode="lines", name="Missed cases (FN)",
-                line=dict(color=POS, width=2),
-                hovertemplate="Threshold %{x:.2f}<br>Missed %{y:,}<extra></extra>",
+        with st.container(border=True):
+            section("The tradeoff", "Lowering the cut-off catches more cases but adds false alarms.")
+            fig = go.Figure()
+            fig.add_trace(
+                go.Scatter(
+                    x=grid, y=fn, mode="lines", name="Cases missed",
+                    line=dict(color=RISK, width=2.5),
+                    hovertemplate="Cut-off %{x:.2f}<br>Missed %{y:,}<extra></extra>",
+                )
             )
-        )
-        fig.add_trace(
-            go.Scatter(
-                x=grid, y=fp, mode="lines", name="False alarms (FP)",
-                line=dict(color=C["blue"], width=2),
-                hovertemplate="Threshold %{x:.2f}<br>False alarms %{y:,}<extra></extra>",
+            fig.add_trace(
+                go.Scatter(
+                    x=grid, y=fp, mode="lines", name="False alarms",
+                    line=dict(color=ACCENT, width=2.5),
+                    hovertemplate="Cut-off %{x:.2f}<br>False alarms %{y:,}<extra></extra>",
+                )
             )
-        )
-        fig.add_vline(x=threshold, line=dict(color=INK_2, width=2))
-        fig.add_vline(x=best_t, line=dict(color=INK_2, width=2, dash="dot"))
-        fig.add_annotation(
-            x=best_t, y=0.94, yref="paper", text=f"cost-minimising {best_t:.2f}",
-            showarrow=False, xanchor="left", xshift=6,
-            font=dict(size=11, color=INK_2),
-        )
-        fig.update_xaxes(title="Decision threshold")
-        fig.update_yaxes(title="Patients in the test split")
-        st.plotly_chart(base_layout(fig, height=360, showlegend=True), width='stretch')
-
-        share = referred / len(y_true)
-        note = (
-            f"At the cost ratio {fn_cost}:{fp_cost}, total cost is minimised at "
-            f"{best_t:.2f}, not 0.50."
-        )
-        if share > 0.5:
-            note += (
-                f"  Note that this refers {share:.0%} of the population, which no clinic "
-                "could absorb. Push the cost of a missed case high enough and the maths "
-                "says screen almost everyone, which is the honest signal that this "
-                "feature set cannot separate the classes sharply enough to triage on."
+            fig.add_vline(x=threshold, line=dict(color=INK, width=1.5))
+            if abs(threshold - best_t) > 0.005:
+                fig.add_vline(x=best_t, line=dict(color=INK_3, width=1.5, dash="dot"))
+            fig.add_annotation(
+                x=best_t, y=0.96, yref="paper", text=f"lowest cost · {best_t:.2f}",
+                showarrow=False, xanchor="left", xshift=6, font=dict(size=11, color=INK_2),
             )
-        st.caption(note)
+            fig.update_xaxes(title="Referral cut-off")
+            fig.update_yaxes(title="People in the test set")
+            st.plotly_chart(base_layout(fig, height=330, showlegend=True), width="stretch")
 
     with right:
-        cm = np.array([[tn[i], fp[i]], [fn[i], tp[i]]])
-        fig = go.Figure(
-            go.Heatmap(
-                z=cm,
-                x=["Predicted No", "Predicted Yes"],
-                y=["Actual No", "Actual Yes"],
-                colorscale=[[0, SEQ[0]], [1, SEQ[4]]],
-                showscale=False,
-                text=[[f"{v:,}" for v in row] for row in cm],
-                texttemplate="%{text}",
-                textfont=dict(size=17, color=INK),
-                hovertemplate="%{y} · %{x}<br>%{z:,}<extra></extra>",
-                xgap=2,
-                ygap=2,
+        with st.container(border=True):
+            section("Outcomes at this cut-off", f"{model_name} · cut-off {threshold:.2f}")
+
+            def cell(n, title, desc, fg, bg):
+                return (f'<div class="cm-cell" style="background:{bg}">'
+                        f'<div class="n" style="color:{fg}">{n:,}</div>'
+                        f'<div class="t" style="color:{fg}">{title}</div>'
+                        f'<div class="d">{desc}</div></div>')
+
+            st.markdown(
+                '<div class="cm-axis">Has it</div><div class="cm-grid">'
+                + cell(tp[i], "Caught", "Referred, and at risk", SAFE, "#EAF5F2")
+                + cell(fn[i], "Missed", "Sent home, but at risk", RISK, "#FBEDEB")
+                + '</div><div class="cm-axis" style="margin-top:12px">Healthy</div><div class="cm-grid">'
+                + cell(fp[i], "False alarm", "Referred, but healthy", ACCENT, "#EDF2F8")
+                + cell(tn[i], "Correctly cleared", "Sent home, healthy", INK_2, "#F3F5F8")
+                + "</div>",
+                unsafe_allow_html=True,
             )
+
+    st.markdown("")
+    if share > 0.5:
+        takeaway(
+            f"<b>So what:</b> at a {fn_cost}:{fp_cost} cost ratio, catching {recall_at:.0%} of "
+            f"cases means referring {share:.0%} of everyone, and about "
+            f"{1 - precision_at:.0%} of those referrals are false alarms. The model still "
+            "beats referring everyone, but real triage needs better data, not a better model."
         )
-        fig.update_yaxes(autorange="reversed")
-        st.plotly_chart(base_layout(fig, height=360), width='stretch')
-        st.caption(f"Confusion matrix for {model_name} at threshold {threshold:.2f}.")
+    else:
+        takeaway(
+            f"<b>So what:</b> at a {fn_cost}:{fp_cost} cost ratio, the lowest-cost cut-off is "
+            f"{best_t:.2f}, not 0.50. It catches {recall_at:.0%} of cases while referring "
+            f"{share:.0%} of people."
+        )
 
 
 # ----------------------------------------------------------------------------
 # DIAGNOSTIC
 # ----------------------------------------------------------------------------
 with tab_diag:
+    analyst_tag()
     st.markdown("#### What is actually driving the prediction?")
 
     imp = group_country(EVAL["importances"]).head(12)[::-1]
@@ -569,8 +672,8 @@ with tab_diag:
         "individually, so both charts show their summed contribution as a single row."
     )
 
-    st.info(
-        "Two independent methods agree on the same three features: age, the APOE-ε4 "
+    takeaway(
+        "<b>Takeaway:</b> two independent methods agree on the same three features: age, the APOE-ε4 "
         "allele, and family history. That matches the established clinical literature, "
         "which is the reassuring result. The flip side is that the remaining twenty "
         "lifestyle and demographic features carry almost no signal, which is why all "
@@ -610,6 +713,7 @@ with tab_diag:
 # CEILING
 # ----------------------------------------------------------------------------
 with tab_ceil:
+    analyst_tag()
     st.markdown("#### How much is the modelling actually buying?")
     st.caption(
         "Before spending another week tuning, it is worth testing whether the limit "
@@ -623,13 +727,13 @@ with tab_ceil:
     lift = best["accuracy"] - age_only["accuracy"]
 
     m1, m2, m3 = st.columns(3)
-    m1.metric("Always answer No", f"{naive:.1%}", help="Predict the majority class every time.")
-    m2.metric("Age alone, one variable", f"{age_only['accuracy']:.1%}")
-    m3.metric(
-        f"Best tuned model ({best['label']})",
-        f"{best['accuracy']:.1%}",
-        f"{lift:+.1%} over age alone",
-    )
+    with m1:
+        kpi("Always answer No", f"{naive:.1%}", "majority class, the bar to beat")
+    with m2:
+        kpi("Age alone", f"{age_only['accuracy']:.1%}", "one variable")
+    with m3:
+        kpi(f"Best tuned · {best['label']}", f"{best['accuracy']:.1%}",
+            f"{lift:+.1%} over age alone")
 
     st.markdown("")
     bars = (
@@ -764,8 +868,8 @@ with tab_ceil:
             "else notices."
         )
 
-    st.info(
-        "The point of this panel is knowing when to stop. The modelling here is sound "
+    takeaway(
+        "<b>Takeaway:</b> the point of this panel is knowing when to stop. The modelling here is sound "
         "and the ceiling is the feature set, so the next investment belongs in data "
         "collection, not in a fifth algorithm. On a site problem the same test is worth "
         "running early, because it decides whether to spend the next sprint on the model "
