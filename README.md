@@ -90,7 +90,7 @@ scores) rather than another algorithm.
 
 Group project for Chem 277A, UC Berkeley, with Zander Rothering, Shivani
 Tijare, Seungho Yoo and Girish Krishna. The original group notebook is in
-`notebook/` (included with permission; source:
+`Notebook/` (included with permission; source:
 github.com/Zander-Rothering/Chem277a_Project_II). Its discussion notes one
 limitation: categorical encoders were fit on the full dataset. This app closes
 that gap with a single training-only pipeline, and adds threshold analysis
