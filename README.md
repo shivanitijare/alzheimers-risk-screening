@@ -2,12 +2,9 @@
 
 An interactive screening tool built on a global demographic and clinical
 dataset. Enter a patient record and four trained classifiers score it live,
-with panels for where the decision threshold belongs, what drives the
-prediction, what the underlying population looks like, and how much the
-modelling is actually buying.
+with panels for where the referral cut-off belongs, what drives the
+prediction, and how much the modeling is actually buying.
 
-Built from a Chem 277A (UC Berkeley) group project and rebuilt here as a
-deployable app with a proper inference pipeline.
 
 ## Running it
 
@@ -27,7 +24,6 @@ the already-selected parameters. It takes 15 to 40 minutes depending on cores.
 | Score a patient | What is this person's risk, and do the models agree? |
 | Set the cut-off | Where should the screening threshold sit, given what a missed case costs? |
 | What drives it | Which features carry the signal? |
-| The data | What does the population look like before any modelling? |
 | Where it tops out | Is more modelling worth it? |
 
 ## Approach
@@ -43,10 +39,10 @@ each tuned by 5-fold stratified `GridSearchCV` on the training split, evaluated
 once on a held-out 20%. The SVM is wrapped in `CalibratedClassifierCV` so all
 four expose comparable probabilities.
 
-**Metric.** Accuracy is reported, but the models are ranked by recall. Missing
-a case in a screening context costs considerably more than a false alarm, and
-the threshold panel makes that trade-off explicit rather than leaving it at the
-default 0.50.
+**Metric.** Accuracy and recall are reported, but the recommended model is
+chosen on AUC: how well it ranks risk. In screening, missing a case costs far
+more than a false alarm, so the referral cut-off is set separately from the
+model, in the threshold panel, rather than left at the default 0.50.
 
 ## Results
 
@@ -93,9 +89,12 @@ scores) rather than another algorithm.
 ## Attribution
 
 Group project for Chem 277A, UC Berkeley, with Zander Rothering, Shivani
-Tijare, Seungho Yoo and Girish Krishna. This application is a rebuild of that
-pipeline with leakage-free encoding, additional metrics, threshold analysis and
-the ceiling study.
+Tijare, Seungho Yoo and Girish Krishna. The original group notebook is in
+`notebook/` (included with permission; source:
+github.com/Zander-Rothering/Chem277a_Project_II). Its discussion notes one
+limitation: categorical encoders were fit on the full dataset. This app closes
+that gap with a single training-only pipeline, and adds threshold analysis
+and the ceiling study.
 
 Dataset: Alzheimer's Prediction Dataset (Global), Ankit (2025), Kaggle,
 https://doi.org/10.34740/KAGGLE/DSV/10618775
